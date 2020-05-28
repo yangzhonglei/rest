@@ -22,7 +22,8 @@ jdk8
 4. 主键不是 id 的问题
 5. 感觉自己这个实现的有点low
 6. 下一步研究下  人家的实现 https://github.com/downgoon/autorest4db
-7.  
+7. 
+
 ---
 
 ## QuickStart
