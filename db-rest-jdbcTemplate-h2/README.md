@@ -1,9 +1,9 @@
 # db-rest-jdbcTemplate-h2
 
-把数据库里的用户表统一暴露为rest的CRUD 接口。
-使用spring jdbcTemplate实现--简单粗暴。
-对于springboot的后台api程序 使用本程序模块，直接实现对数据库单表的 restfull CRUD操作。
-当前只支持mysql数据库，oracle的分页有些不同，稍后修改兼容。
+把数据库里的用户表统一暴露为rest的CRUD 接口。  
+使用spring jdbcTemplate实现--简单粗暴。  
+对于springboot的后台api程序 使用本程序模块，直接实现对数据库单表的 restfull CRUD操作。  
+当前只支持mysql数据库，oracle的分页有些不同，稍后修改兼容。  
 
 ---
 ## 技术框架    
