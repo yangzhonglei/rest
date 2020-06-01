@@ -10,6 +10,14 @@ CREATE TABLE employee (
     PRIMARY KEY (id)
 );
 
+
+CREATE TABLE t_student(
+    no VARCHAR(14)  NOT NULL      ,
+    name  VARCHAR(14)     NOT NULL,
+    PRIMARY KEY (no)
+);
+
+
 CREATE TABLE department (
     id     CHAR(4)              NOT NULL,
     dept_name   VARCHAR(40)     NOT NULL,
@@ -18,3 +26,8 @@ CREATE TABLE department (
 );
 
 
+CREATE TABLE `test` (
+  `no` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`no`,`name`)
+)
