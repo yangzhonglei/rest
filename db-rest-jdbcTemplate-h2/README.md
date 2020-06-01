@@ -218,16 +218,16 @@ Date: Thu, 28 May 2020 02:38:11 GMT
 
 
 ------ 
-## 配置说明
+## 配置说明  
 
-配置employee的 listEntity可以访问: 
-simple-rest-config.permit.employee-listEntity=true
+配置employee的 listEntity可以访问:   
+simple-rest-config.permit.employee-listEntity=true  
 
-配置department的所有的方法都可以访问：
-simple-rest-config.permit.department-all=true
+配置department的所有的方法都可以访问：  
+simple-rest-config.permit.department-all=true  
 
-配置employee查询结果 排除 firstName,lastName 字段:
-simple-rest-config.exclude.employee=firstName,lastName
+配置employee查询结果 排除 firstName,lastName 字段:  
+simple-rest-config.exclude.employee=firstName,lastName  
 
 
 
