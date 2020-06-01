@@ -234,6 +234,3 @@ simple-rest-config.exclude.employee=firstName,lastName
 
 
 
-
-
-
