@@ -6,17 +6,17 @@
 当前只支持mysql数据库，oracle的分页有些不同，稍后修改兼容。
 
 ---
-## 技术框架
-spring boot  2.3.0
-spring JdbcTemplate
-数据库连接池  hikari -- springboot 2.0 中默认连接池是Hikari
-测试使用h2数据库
-jdk8
+## 技术框架    
+spring boot  2.3.0  
+spring JdbcTemplate  
+数据库连接池  hikari -- springboot 2.0 中默认连接池是Hikari  
+测试使用h2数据库  
+jdk8  
 
 ---
-碎碎念：
-这里是使用 JdbcTemplate实现的
-当前实现的存在的问题：
+碎碎念：  
+这里是使用 JdbcTemplate实现的   
+当前实现的存在的问题： 
 1. 会有sql注入的问题--修改了
 2. 对于访问哪些表没有控制--增加了限制 通过配置文件限制
 3. 直接使用的表名 和 列名 ， 没有映射为Java的类，没有使用驼峰命名--已更改为使用java风格的对象名
@@ -218,16 +218,16 @@ Date: Thu, 28 May 2020 02:38:11 GMT
 
 
 ------ 
-## 配置说明
+## 配置说明  
 
-配置employee的 listEntity可以访问: 
-simple-rest-config.permit.employee-listEntity=true
+配置employee的 listEntity可以访问:   
+simple-rest-config.permit.employee-listEntity=true  
 
-配置department的所有的方法都可以访问：
-simple-rest-config.permit.department-all=true
+配置department的所有的方法都可以访问：  
+simple-rest-config.permit.department-all=true  
 
-配置employee查询结果 排除 firstName,lastName 字段:
-simple-rest-config.exclude.employee=firstName,lastName
+配置employee查询结果 排除 firstName,lastName 字段:  
+simple-rest-config.exclude.employee=firstName,lastName  
 
 
 
