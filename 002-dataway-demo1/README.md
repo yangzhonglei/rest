@@ -39,8 +39,10 @@ return result
 
 
 
-当前看使用 dataway  可以快速开发 复杂一些的sql查询   暴露为http接口    
+ 
+当前看使用 dataway  可以快速开发 复杂一些的sql查询   暴露为http接口   
 想快速开发一些项目的时候可以考虑使用      
+ 
 
 
 
