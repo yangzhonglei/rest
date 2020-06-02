@@ -14,7 +14,7 @@ spring JdbcTemplate
 jdk8  
 
 ---
-碎碎念：  
+问题：  
 这里是使用 JdbcTemplate实现的   
 当前实现的存在的问题： 
 1. 会有sql注入的问题--修改了
@@ -24,7 +24,7 @@ jdk8
 5. 感觉自己这个实现的有点low--是的
 6. 下一步研究下  人家的实现 https://github.com/downgoon/autorest4db
 7. 通过可配置排除掉某些字段
-8. 
+8. 数据库动态增加表的问题：要考虑动态刷新记录的表信息
 
 ---
 
@@ -228,6 +228,13 @@ simple-rest-config.permit.department-all=true
 
 配置employee查询结果 排除 firstName,lastName 字段:  
 simple-rest-config.exclude.employee=firstName,lastName  
+
+
+
+覆盖url问题:假如使用的simpleRest 访问 /rest/employee/10003并不能满足我们需求     
+我们可以对这个url 做出定制调整，根据spring url的匹配规则 会优先匹配确定的url        
+可以参考  TestController     
+
 
 
 
