@@ -30,4 +30,17 @@ CREATE TABLE `test` (
   `no` varchar(100) NOT NULL,
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`no`,`name`)
-)
+);
+
+
+
+
+CREATE TABLE complex_query_config (
+  id int NOT NULL,
+  method varchar(10)  NOT NULL,
+  path varchar(100)   NOT NULL,
+  status tinyint NOT NULL,
+  sql text  NOT NULL,
+  create_at datetime NOT NULL,
+  update_at datetime NOT NULL
+)  ;
