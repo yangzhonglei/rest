@@ -237,7 +237,12 @@ simple-rest-config.exclude.employee=firstName,lastName
 
 
 
+## 配置sql暴露为接口  
 
+按照dataway的思路 在数据库增加表complex_query_config    
+复杂的查询sql可以配置在这里   
+通过  ComplexQueryController 暴露sql为 接口     
+当前要求 方法必须是 POST application/json   
 
 
 
