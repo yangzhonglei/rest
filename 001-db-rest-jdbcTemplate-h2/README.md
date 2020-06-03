@@ -244,5 +244,31 @@ simple-rest-config.exclude.employee=firstName,lastName
 通过  ComplexQueryController 暴露sql为 接口     
 当前要求 方法必须是 POST application/json   
 
+```
+$ curl -i -X POST -H 'Content-Type: application/json' -d  '{"id":"0", "page": 1,  "size": 1 ,"sort":"lastName asc ,firstName desc" }' http://172.18.49.66:8080/query/employee3
+HTTP/1.1 200 
+Content-Type: application/json;charset=utf-8
+Transfer-Encoding: chunked
+Date: Wed, 03 Jun 2020 09:26:33 GMT
 
+{
+	"data": {
+		"page": 1,
+		"size": 1,
+		"total": 13,
+		"list": [{
+				"firstName": "Alejandro",
+				"lastName": "Brender",
+				"hireDate": "1988-01-19",
+				"gender": "M",
+				"id": 10039,
+				"birthDate": "1959-10-01"
+			}
+		]
+	},
+	"msg": "成功",
+	"status": "SUCCESS",
+	"timeStamp": 1591176393156
+}
+```
 
