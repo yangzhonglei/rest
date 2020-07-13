@@ -23,6 +23,13 @@ public class TableInfo {
 	private String singlePkColName;	
 	
 	
+	private List<String> columnList = new ArrayList<String>();
+	
+	
+	
+	public List<String> getColumnList() {
+		return columnList;
+	}
 	public String getTableObjectName() {
 		return tableObjectName;
 	}

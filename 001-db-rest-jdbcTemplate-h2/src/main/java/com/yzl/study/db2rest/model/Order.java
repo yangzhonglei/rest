@@ -10,7 +10,14 @@ public class Order {
 	private String ColName;
 	private String sortType;
 	
+	private boolean gbkconvert=false;
 	
+	public boolean isGbkconvert() {
+		return gbkconvert;
+	}
+	public void setGbkconvert(boolean gbkconvert) {
+		this.gbkconvert = gbkconvert;
+	}
 	public String getColName() {
 		return ColName;
 	}
