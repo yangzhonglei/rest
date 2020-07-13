@@ -81,7 +81,7 @@ Date: Mon, 01 Jun 2020 09:06:33 GMT
 - **list entity 分页 排序**
 
 ``` bash
-curl -i -X GET  http://172.18.49.66:8080/rest/employee?page=1&size=2&sort=id,desc&sort=gender
+curl -i -X GET  http://172.18.49.66:8080/rest/employee?page=1\&size=2\&sort=id,desc\&sort=gender
 HTTP/1.1 200 
 Content-Type: application/json;charset=utf-8
 Transfer-Encoding: chunked
@@ -112,7 +112,11 @@ Date: Mon, 01 Jun 2020 09:10:50 GMT
     "timeStamp": 1591002804183
 }
 ```   
-
+使用mysql的情况下可以指定使用汉语言评语排序：使用gbkconvert$前缀
+ http://172.18.49.66:8080/rest/employee?page=1\&size=20\&sort=gbkconvert$firstName
+ 
+ 
+ 
 
 
 
@@ -156,6 +160,65 @@ Date: Thu, 28 May 2020 02:13:39 GMT
 	"timeStamp": 1591003067979
 }
 ``` 
+
+**使用 isNull、isNotNull 过滤记录**  
+
+isNotNull:  
+```
+curl -i -X  GET http://172.18.49.66:8080/rest/test?page=1\&size=20\&addr=isNotNull
+
+HTTP/1.1 200
+Content-Type: application/json;charset=utf-8
+Transfer-Encoding: chunked
+Date: Mon, 13 Jul 2020 03:48:11 GMT
+
+{
+    "data":{
+        "page":1,
+        "size":10,
+        "total":1,
+        "list":[
+            {
+                "no":"b",
+                "name":"Finance",
+                "addr":"beijing"
+            }]
+    },
+    "msg":"成功",
+    "status":"SUCCESS",
+    "timeStamp":1594612091213
+}
+```
+
+isNull:  
+```
+http://172.18.49.66:8080/rest/test?page=1\&size=20\&addr=isNull
+
+HTTP/1.1 200
+Content-Type: application/json;charset=utf-8
+Transfer-Encoding: chunked
+Date: Mon, 13 Jul 2020 03:50:29 GMT
+
+{
+    "data":{
+        "page":1,
+        "size":10,
+        "total":1,
+        "list":[
+            {
+                "no":"a",
+                "name":"Development",
+                "addr":null
+            }]
+    },
+    "msg":"成功",
+    "status":"SUCCESS",
+    "timeStamp":1594612229017
+}
+
+```
+
+
 
 
 
