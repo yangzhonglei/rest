@@ -35,7 +35,7 @@ import com.yzl.study.db2rest.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/edas/rest")
+@RequestMapping("/rest")
 @Slf4j
 public class SimpleRestController {
 	

@@ -29,6 +29,7 @@ CREATE TABLE department (
 CREATE TABLE `test` (
   `no` varchar(100) NOT NULL,
   `name` varchar(100) NOT NULL,
+  `addr` varchar(100)  NULL,
   PRIMARY KEY (`no`,`name`)
 );
 
