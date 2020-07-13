@@ -20,8 +20,12 @@ import com.yzl.study.db2rest.model.PageResponse;
 import com.yzl.study.db2rest.model.ResponseMessage;
 import com.yzl.study.db2rest.model.Sort;
 import com.yzl.study.db2rest.utils.FieldNameConvertor;
+import com.yzl.study.db2rest.utils.JsonUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
+@Slf4j
 public class ComplexQueryController {
 	
 	@Autowired
@@ -38,15 +42,26 @@ public class ComplexQueryController {
 		Page  page = parsePage(reqMap);
 		String method = req.getMethod();
 		String path = req.getServletPath();
+		log.info("===query page:{} ,reqMap:{}", new Object[]{ JsonUtils.toJson(page), JsonUtils.toJson(reqMap)});
 		
 		ComplexQuery c = complexQueryHolder.matchComplexQuery(method, path);
 		if(c==null) {
-			
+			log.info("===query response:{}", JsonUtils.toJson(ResponseMessage.failMsg()));
 			return ResponseMessage.failMsg();
 		}
 		
 		
 		Integer count = complexQueryExecuter.count(c, reqMap); 
+		if(count!=null &&count==0) {
+			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+			PageResponse prsb = new PageResponse();
+			prsb.setList(list);
+			prsb.setPage(page.getPage());
+			prsb.setTotal((long)count);
+			prsb.setSize(page.getSize());
+			log.info("===query response:{}", JsonUtils.toJson(ResponseMessage.successMsg(prsb)));
+			return ResponseMessage.successMsg(prsb);
+		}
 		if(count!=null &&count>0) {
 			List<Map<String, Object>> list = complexQueryExecuter.query(c, reqMap,page);
 			if(list==null) {
@@ -57,10 +72,11 @@ public class ComplexQueryController {
 			prsb.setPage(page.getPage());
 			prsb.setTotal((long)count);
 			prsb.setSize(page.getSize());
+			log.info("===query response:{}", JsonUtils.toJson(ResponseMessage.successMsg(prsb)));
 			return ResponseMessage.successMsg(prsb);
 			
 		}
-		
+		log.info("===query response:{}", JsonUtils.toJson( ResponseMessage.failMsg()));
 		return ResponseMessage.failMsg();
 		
 		
@@ -89,25 +105,40 @@ public class ComplexQueryController {
 	    			Order orderTmp = null;
 	    			for(String s : ss) {
 	    				if(s.toLowerCase().contains("asc") ) {
-	    					
-	    					int ascInd = s.toLowerCase().indexOf("asc");
-	    					String fieldName = s.substring(0,ascInd);
-	    					String colName = FieldNameConvertor.fieldNamed2ColumnName(fieldName) ;
 	    					orderTmp = new Order();
+	    					int ascInd = s.toLowerCase().indexOf(" asc");
+	    					String fieldName = s.substring(0,ascInd);
+	    					if(fieldName.trim().startsWith("gbkconvert$")) {
+	    						orderTmp.setGbkconvert(true);
+	    						fieldName=fieldName.replace("gbkconvert$", "");
+	    					}
+	    					String colName = FieldNameConvertor.fieldName2ColumnName(fieldName) ;
+	    					
 	    					orderTmp.setColName(colName);
 	    					orderTmp.setSortType("asc");
 	    					
 	    				}else if( s.toLowerCase().contains("desc")) {
-	    					
-	    					int ascInd = s.toLowerCase().indexOf("desc");
-	    					String fieldName = s.substring(0,ascInd);
-	    					String colName = FieldNameConvertor.fieldNamed2ColumnName(fieldName) ;
 	    					orderTmp = new Order();
+	    					int ascInd = s.toLowerCase().indexOf(" desc");
+	    					String fieldName = s.substring(0,ascInd);
+	    					if(fieldName.trim().startsWith("gbkconvert$")) {
+	    						orderTmp.setGbkconvert(true);
+	    						fieldName=fieldName.replace("gbkconvert$", "");
+	    					}
+	    					String colName = FieldNameConvertor.fieldName2ColumnName(fieldName) ;
+	    			
 	    					orderTmp.setColName(colName);
 	    					orderTmp.setSortType("desc");
 	    				}else {
-	    					String colName = FieldNameConvertor.fieldNamed2ColumnName(s.trim()) ;
+	    					
 	    					orderTmp = new Order();
+	    					String fieldName = s.trim();
+	    					if(fieldName.trim().startsWith("gbkconvert$")) {
+	    						orderTmp.setGbkconvert(true);
+	    						fieldName=fieldName.replace("gbkconvert$", "");
+	    					}
+	    					String colName = FieldNameConvertor.fieldName2ColumnName(fieldName) ;
+	    					
 	    					orderTmp.setColName(colName);
 	    					orderTmp.setSortType("asc");
 	    					
@@ -115,13 +146,39 @@ public class ComplexQueryController {
 	    				
 	    				sort.getOrders().add(orderTmp);
 	    			}
-	    		}else {
+	    		}else {//一列 
+	    			String tmp = sortStr.trim();
+	    			String[] ss = tmp.split(" ");
 	    			
-	    			String colName = FieldNameConvertor.fieldNamed2ColumnName(sortStr.trim()) ;
-	    			Order ord = new Order();
-	    			ord.setColName(colName);
-	    			ord.setSortType("asc");
-					sort.getOrders().add(ord);
+	    			if(ss.length==2) {//指定了一个列 和 升降序
+	    				
+	    				if("asc".equals(ss[1].toLowerCase().trim())  || "desc".equals(ss[1].toLowerCase().trim()) ) {
+	    					Order ord = new Order();
+	    					String fieldName = ss[0].trim();
+	    					if(fieldName.trim().startsWith("gbkconvert$")) {
+	    						ord.setGbkconvert(true);
+	    						fieldName=fieldName.replace("gbkconvert$", "");
+	    					}
+	    				    String colName = FieldNameConvertor.fieldName2ColumnName(fieldName) ;
+	    	    			
+	    	    			ord.setColName(colName);
+	    	    			ord.setSortType(ss[1].toLowerCase());
+	    					sort.getOrders().add(ord);
+	    				}
+	    			}else if(ss.length==1) {//指定了一个列   但是没有指定 升降序
+	    				Order ord = new Order();
+	    				String fieldName = ss[0].trim();
+    					if(fieldName.trim().startsWith("gbkconvert$")) {
+    						ord.setGbkconvert(true);
+    						fieldName=fieldName.replace("gbkconvert$", "");
+    					}
+	    				String colName = FieldNameConvertor.fieldName2ColumnName(fieldName) ;
+		    			
+		    			ord.setColName(colName);
+		    			ord.setSortType("asc");
+						sort.getOrders().add(ord);
+	    				
+	    			}
 	    			
 	    		}
 	    		
