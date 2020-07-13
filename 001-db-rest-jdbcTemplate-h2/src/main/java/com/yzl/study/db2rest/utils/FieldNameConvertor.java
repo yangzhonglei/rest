@@ -38,7 +38,7 @@ public class FieldNameConvertor {
 	 * @param fieldNamed
 	 * @return
 	 */
-	public static String fieldNamed2ColumnName(String fieldNamed) {
+	public static String fieldName2ColumnName(String fieldNamed) {
 		
 		StringBuilder sb = new StringBuilder();
 		int startInd = 0;
@@ -113,7 +113,7 @@ public class FieldNameConvertor {
 		Iterator<String> iterator = map.keySet().iterator();
 		while(iterator.hasNext()) {
 			tmpK = iterator.next();
-			tmp.put(fieldNamed2ColumnName(tmpK), map.get(tmpK));
+			tmp.put(fieldName2ColumnName(tmpK), map.get(tmpK));
 		}
 		return tmp;
 	}
