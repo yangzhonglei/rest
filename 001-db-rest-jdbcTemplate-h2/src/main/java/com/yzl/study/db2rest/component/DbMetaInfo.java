@@ -44,6 +44,11 @@ public class DbMetaInfo {
 		        ti.setTableName(tableName);
 		        ti.setTableObjectName(FieldNameConvertor.columnName2FieldName(tableName));
 		        ti.setTableType(tableType);
+		    	ResultSet columns = metaData.getColumns(null, null, "t_project_type", null);
+		    	while(columns.next()){
+			        String colName=columns.getString(4); 
+			        ti.getColumnList().add(colName);
+			    }
 		        list.add(ti);
 		        
 		    }
@@ -95,6 +100,25 @@ public class DbMetaInfo {
 		
 		TableInfo tableInfo = DbMetaInfo.tableMap.get(tableObjectName);
 		return  tableInfo!=null ;
+		
+	}
+	public static boolean checkColumnExist(String tableObjectName,String columnName){
+		
+		boolean exist = false;
+		TableInfo tableInfo = DbMetaInfo.tableMap.get(FieldNameConvertor.columnName2FieldName(tableObjectName)   );
+		if(tableInfo!=null) {
+			
+			List<String> columnList = tableInfo.getColumnList();
+			for(String s:columnList) {
+				//这里忽略大小写 TODO   最好根据不同数据库设置 来判断  
+				if( s.equalsIgnoreCase(columnName) ) {
+					exist = true ;
+				}
+				
+			}
+			
+		}  
+		return  exist ;
 		
 	}
 
