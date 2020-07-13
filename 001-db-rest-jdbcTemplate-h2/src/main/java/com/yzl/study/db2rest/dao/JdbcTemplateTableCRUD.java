@@ -23,8 +23,12 @@ import com.yzl.study.db2rest.component.TableInfo;
 import com.yzl.study.db2rest.model.Order;
 import com.yzl.study.db2rest.model.Sort;
 import com.yzl.study.db2rest.utils.FieldNameConvertor;
+import com.yzl.study.db2rest.utils.MySqlBuilder;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class JdbcTemplateTableCRUD implements ITableCRUD {
 	
 	
@@ -41,21 +45,10 @@ public class JdbcTemplateTableCRUD implements ITableCRUD {
 		int update;
 		TransactionStatus status = null;
 		try {
-			StringBuffer sb = new StringBuffer();
-			sb.append("INSERT INTO " + tableName);
-			sb.append("(");
-			for (Entry<String, Object> e : obj.entrySet()) {
-				sb.append(e.getKey() + ",");
-			}
-			sb.deleteCharAt(sb.length() - 1);
-			sb.append(") VALUES (");
-			for (Entry<String, Object> e : obj.entrySet()) {
-				sb.append(" :" + e.getKey() + ",");
-			}
-			sb.deleteCharAt(sb.length() - 1);
-			sb.append(")");
+			String toBeExeSql =  MySqlBuilder.buildCreate(tableName, obj);
+			log.debug("=== to be exe sql:{}",toBeExeSql);
 			status = beginTransaction(dataSourceTransactionManager);
-			update = namedParameterJdbcTemplate.update(sb.toString(), obj);
+			update = namedParameterJdbcTemplate.update(toBeExeSql, obj);
 			dataSourceTransactionManager.commit(status);
 		} catch (Exception e) {
 			update = -100;
@@ -98,34 +91,10 @@ public class JdbcTemplateTableCRUD implements ITableCRUD {
 	public List<Map<String, Object>> retrieve(String tableName ,SimpleRestRequest request ) {
 		 
 		 Map<String, Object> conditionParaMap = request.getConditionParaMap();
-		 Integer page = request.getPage().getPage();
-		 Integer size = request.getPage().getSize();
-		 String selectSql = "select * from "+tableName ;
-		 
 		try {
-			StringBuffer sb = new StringBuffer();
-			sb.append("select * from "+tableName);
-			sb.append(" where  1=1 ");
-			for(Entry<String, Object> e :conditionParaMap.entrySet()) {
-				if(!isKeyWord(e.getKey())) {
-					sb.append(" and "+e.getKey()+" = :"+e.getKey());
-				}
-				
-			}
-			
-			Sort st = request.getPage().getSort();
-			if(st!=null && st.getOrders()!=null && st.getOrders().size()>0) {
-			
-				StringBuilder orderByStr = new StringBuilder();
-				for(Order o: st.getOrders()) {	
-					orderByStr.append(o.getColName()+" "+ o.getSortType()+",");
-				}
-				orderByStr.deleteCharAt(orderByStr.length()-1);
-				sb.append(" order by "+orderByStr.toString());
-			}
-			sb.append(" limit "+((page-1)*size)+" , " + page*size);
-			System.out.println("================"+sb.toString());
-			List<Map<String, Object>> queryForList = namedParameterJdbcTemplate.queryForList(sb.toString(), conditionParaMap);
+			String toBeExeSql =  MySqlBuilder.buildSelect(tableName, request);
+			log.debug("=== to be exe sql:{}",toBeExeSql);
+			List<Map<String, Object>> queryForList = namedParameterJdbcTemplate.queryForList(toBeExeSql, conditionParaMap);
 			return FieldNameConvertor.columnName2FieldName(queryForList);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -139,18 +108,16 @@ public class JdbcTemplateTableCRUD implements ITableCRUD {
 		 
 		 Integer count = 0;
 		 Map<String, Object> conditionParaMap = request.getConditionParaMap();
+		 Map<String, Object> newParaMap = new HashMap<String, Object>();
+		 for(Map.Entry<String, Object> e:  conditionParaMap.entrySet()   ) {
+			 
+			 newParaMap.put(e.getKey(), e.getValue());
+		 }
+		 
 		try {
-			StringBuffer sb = new StringBuffer();
-			sb.append("select count(1) from "+tableName);
-			sb.append(" where  1=1 ");
-			for(Entry<String, Object> e :conditionParaMap.entrySet()) {
-				if(!isKeyWord(e.getKey())) {
-					sb.append(" and "+e.getKey()+" = :"+e.getKey());
-				}
-				
-			}
-			System.out.println("================"+sb.toString());
-			count =  namedParameterJdbcTemplate.queryForObject(sb.toString(), conditionParaMap, Integer.class) ;
+			String toBeExeSql = MySqlBuilder.buildCount(tableName, newParaMap);
+			log.debug("=== to be exe sql:{}",toBeExeSql);
+			count =  namedParameterJdbcTemplate.queryForObject(toBeExeSql, newParaMap, Integer.class) ;
 			return count;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -167,18 +134,11 @@ public class JdbcTemplateTableCRUD implements ITableCRUD {
 		int update;
 		TransactionStatus status = null;
 		try {
-			StringBuffer sb = new StringBuffer();
-			sb.append("update  " + tableName);
-			sb.append(" set ");
-			for (Entry<String, Object> e : para.entrySet()) {
-				sb.append(e.getKey() + " = :"+e.getKey() +",");
-			}
-			sb.deleteCharAt(sb.length() - 1);
-			sb.append(" where id = :id");
-			
 			para.put("id", id);
+			String toBeExeSql = MySqlBuilder.buildUpdate(tableName, para);
+			log.debug("=== to be exe sql:{}",toBeExeSql);
 			status = beginTransaction(dataSourceTransactionManager);
-			update = namedParameterJdbcTemplate.update(sb.toString(), para);
+			update = namedParameterJdbcTemplate.update(toBeExeSql, para);
 			dataSourceTransactionManager.commit(status);
 		} catch (Exception e) {
 			update = -100;
@@ -202,8 +162,10 @@ public class JdbcTemplateTableCRUD implements ITableCRUD {
 			StringBuffer sb = new StringBuffer();
 			sb.append("delete from  " + tableName);
 			sb.append(" where id = :id");
+			String toBeExeSql = sb.toString();
+			log.debug("=== to be exe sql:{}",toBeExeSql);
 			status = beginTransaction(dataSourceTransactionManager);
-			update = namedParameterJdbcTemplate.update(sb.toString(), para);
+			update = namedParameterJdbcTemplate.update(toBeExeSql, para);
 			dataSourceTransactionManager.commit(status);
 		} catch (Exception e) {
 			update = -100;
@@ -226,14 +188,6 @@ public class JdbcTemplateTableCRUD implements ITableCRUD {
     }
     
     
-    private boolean isKeyWord(String kName) {
-    	
-    	if("page".equals(kName)  ||"size".equals(kName)||"sort".equals(kName) ) {
-    		
-    		return true ;
-    	}
-    	return false;
-    }
 
 
     
