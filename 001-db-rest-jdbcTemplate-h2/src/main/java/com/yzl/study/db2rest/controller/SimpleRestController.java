@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yzl.study.db2rest.annotation.SimpleRest;
 import com.yzl.study.db2rest.component.SimpleRestRequest;
 import com.yzl.study.db2rest.dao.ITableCRUD;
@@ -28,9 +30,13 @@ import com.yzl.study.db2rest.model.PageResponse;
 import com.yzl.study.db2rest.model.ResponseMessage;
 import com.yzl.study.db2rest.model.Sort;
 import com.yzl.study.db2rest.utils.FieldNameConvertor;
+import com.yzl.study.db2rest.utils.JsonUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/rest")
+@RequestMapping("/edas/rest")
+@Slf4j
 public class SimpleRestController {
 	
 	@Autowired
@@ -47,8 +53,10 @@ public class SimpleRestController {
 	@SimpleRest
 	public Object listEntity(HttpServletRequest req ,@PathVariable String tableObjectName) {
 		
-	    String tableName=FieldNameConvertor.fieldNamed2ColumnName(tableObjectName);
+	    String tableName=FieldNameConvertor.fieldName2ColumnName(tableObjectName);
 		SimpleRestRequest request = getPara2Request(req);
+		
+		log.info("===listEntity request:{}",JsonUtils.toJson(request));
 		Integer count = jdbcTemplateTableCRUD.count(tableName,request);
 		if(request.getPage()!=null  ) {
 			
@@ -66,6 +74,7 @@ public class SimpleRestController {
 		prsb.setPage(request.getPage().getPage());
 		prsb.setTotal((long)count);
 		prsb.setSize(request.getPage().getSize());
+		log.info("===listEntity response:{}",JsonUtils.toJson(ResponseMessage.successMsg(prsb)));
 		return ResponseMessage.successMsg(prsb);
 	}
 	
@@ -81,9 +90,10 @@ public class SimpleRestController {
 	@SimpleRest
 	public Object getEntity(HttpServletRequest req ,@PathVariable String tableObjectName, @PathVariable Object id) {
 		
-		String tableName=FieldNameConvertor.fieldNamed2ColumnName(tableObjectName);
+		log.info("===getEntity tableObjectName:{},id:{}",new Object[] {tableObjectName,id});
+		String tableName=FieldNameConvertor.fieldName2ColumnName(tableObjectName);
 		Object object = jdbcTemplateTableCRUD.retrieve(tableName,id);
-
+		log.info("===getEntity response:{}",JsonUtils.toJson(ResponseMessage.successMsg(object)));
 		return  ResponseMessage.successMsg(object);
 	}
 	
@@ -98,13 +108,24 @@ public class SimpleRestController {
 	@SimpleRest
 	public Object createEntity(HttpServletRequest req ,@PathVariable String tableObjectName,@RequestBody Map<String,Object> reqMap) {
 		
-		 System.out.println(JSONObject.toJSONString(reqMap));
+		 ObjectMapper  objectMapper = new ObjectMapper();
+		 String reqStr=null;
+		try {
+			reqStr = objectMapper.writeValueAsString(reqMap);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 log.info("===createEntity reqStr:{}",reqStr);
 		 Map<String,Object> reqMapCol =  FieldNameConvertor.fieldName2columnName(reqMap);
-		 String tableName=FieldNameConvertor.fieldNamed2ColumnName(tableObjectName);
+		 String tableName=FieldNameConvertor.fieldName2ColumnName(tableObjectName);
 		 int i = jdbcTemplateTableCRUD.create(tableName, reqMapCol);
 		 if(i==1) {
+			 log.info("===createEntity response:{}",JsonUtils.toJson(ResponseMessage.successMsg()));
 			 return ResponseMessage.successMsg();
 		 }
+		 
+		log.info("===createEntity response:{}",JsonUtils.toJson(ResponseMessage.failMsg()));
 		return ResponseMessage.failMsg();
 	}
 	
@@ -119,13 +140,23 @@ public class SimpleRestController {
 	@SimpleRest
 	public Object updateEntity(HttpServletRequest req ,@PathVariable String tableObjectName,@PathVariable Object id ,@RequestBody Map<String,Object> reqMap) {
 		
-		 System.out.println(JSONObject.toJSONString(reqMap));
+		 ObjectMapper  objectMapper = new ObjectMapper();
+		 String reqStr=null;
+		try {
+			reqStr = objectMapper.writeValueAsString(reqMap);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 log.info("===updateEntity reqStr:{}",reqStr);
 		 Map<String,Object> reqMapCol =  FieldNameConvertor.fieldName2columnName(reqMap);
-		 String tableName=FieldNameConvertor.fieldNamed2ColumnName(tableObjectName);
+		 String tableName=FieldNameConvertor.fieldName2ColumnName(tableObjectName);
 		 int  i = jdbcTemplateTableCRUD.update(tableName, id ,reqMapCol);
 		 if(i==1) {
+			 log.info("===updateEntity response:{}",JsonUtils.toJson(ResponseMessage.successMsg()));
 			 return ResponseMessage.successMsg();
 		 }
+		log.info("===updateEntity response:{}",JsonUtils.toJson(ResponseMessage.failMsg()));
 		return ResponseMessage.failMsg();
 	}
 	
@@ -140,16 +171,22 @@ public class SimpleRestController {
 	@DeleteMapping(value = "/{tableObjectName}/{id}",produces = "application/json;charset=utf-8")
 	@SimpleRest
 	public Object deleteEntity(HttpServletRequest req, @PathVariable String tableObjectName, @PathVariable Integer id) {
-		String tableName = FieldNameConvertor.fieldNamed2ColumnName(tableObjectName);
+		
+		log.info("===deleteEntity tableObjectName:{},id:{}",new Object[] {tableObjectName,id});
+		String tableName = FieldNameConvertor.fieldName2ColumnName(tableObjectName);
 		int i = jdbcTemplateTableCRUD.delete(tableName, id);
 		if (i == 1) {
+			
+			log.info("===deleteEntity response:{}",JsonUtils.toJson(ResponseMessage.successMsg()));
 			return ResponseMessage.successMsg();
 		}
+		
+		log.info("===deleteEntity response:{}",JsonUtils.toJson(ResponseMessage.failMsg()));
 		return ResponseMessage.failMsg();
 	}
 	
 	
-	/** 解析传来的 排序参数   返回盛放<coLName,sortType>的list
+	/** 解析传来的 排序参数   返回盛放<coLName,sortType>的list,  若想中文安装拼音排序:  sort=gbkconvert#name,desc
 	 * @param vs
 	 * @return
 	 */
@@ -167,11 +204,19 @@ public class SimpleRestController {
 			if(orderStr.contains(",")) {
 				String[] ss = orderStr.split(",");	
 				tmpColName=ss[0];
-				tmpColName=FieldNameConvertor.fieldNamed2ColumnName(tmpColName);
+				if(tmpColName.trim().startsWith("gbkconvert$")) {
+					orderTmp.setGbkconvert(true);
+					tmpColName=tmpColName.replace("gbkconvert$", "");
+				}
+				tmpColName=FieldNameConvertor.fieldName2ColumnName(tmpColName);
 				orderTmp.setColName(tmpColName);
 				orderTmp.setSortType(ss[1]);
 			}else {
-				orderTmp.setColName(FieldNameConvertor.fieldNamed2ColumnName(orderStr));
+				if(orderStr.trim().startsWith("gbkconvert$")) {
+					orderTmp.setGbkconvert(true);
+					orderStr=orderStr.replace("gbkconvert$", "");
+				}
+				orderTmp.setColName(FieldNameConvertor.fieldName2ColumnName(orderStr));
 				orderTmp.setSortType("asc");
 				
 			}
@@ -209,7 +254,12 @@ public class SimpleRestController {
 					pageRequest.setPage(Integer.valueOf(vs[0]));
 				}else if("size".equals(s)) {
 					pageRequest.setSize(Integer.valueOf(vs[0]));
-				}else {
+				}else if("sort".equals(s.toLowerCase())) {
+					sort = getSort(vs);
+					pageRequest.setSort(sort);
+				}
+				
+				else {
 					conditionParaMap.put(s, vs[0]);
 				}
 			}
