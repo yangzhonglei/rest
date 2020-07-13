@@ -20,10 +20,13 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yzl.study.db2rest.SimpleRestConfig;
 import com.yzl.study.db2rest.component.DbMetaInfo;
 import com.yzl.study.db2rest.model.PageResponse;
 import com.yzl.study.db2rest.model.ResponseMessage;
+
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -32,6 +35,7 @@ import com.yzl.study.db2rest.model.ResponseMessage;
  */
 @Aspect //AOP 切面
 @Component
+@Slf4j
 public class SimpleRestAspect {
 
     @Autowired
@@ -57,6 +61,7 @@ public class SimpleRestAspect {
     	 
     	 if(tableObjectName!=null && DbMetaInfo.checkTableExist(tableObjectName)) {
     		 
+    		 //不配置的话默认  允许访问所有的
     		 if(simpleRestConfig.getPermit()!=null) {
     			 //配置了 -all=true 可以访问 
     			 Boolean permitAll = simpleRestConfig.getPermit().get(tableObjectName+"-all");
@@ -67,22 +72,27 @@ public class SimpleRestAspect {
     				 Boolean permit = simpleRestConfig.getPermit().get(tableObjectName+"-"+targetMethod);
         			 if((permit==null)?false:permit ) {
         				 return point.proceed();
+        			 }else {
+        				 response.setStatus(403); // .getWriter().write("table not exist");
+        				 return null;
         			 }
     			 }
     			
     		 }
-    		 System.out.println("======="+ JSON.toJSONString(simpleRestConfig));
+    		 
+    		 ObjectMapper  objectMapper = new ObjectMapper();
+    		 String reqStr = objectMapper.writeValueAsString(simpleRestConfig);
+    		 log.debug("====simpleRestConfig==="+ reqStr);
     		 return point.proceed();
     	 }
-		 System.out.println("table not exist: "+tableObjectName);
+    	 log.info("table not exist:{}",tableObjectName);
 		 response.setStatus(404); // .getWriter().write("table not exist");
 		 return null;
-    	 
 
     }
     
  
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
 	@AfterReturning(value = "simpleRestPointCut() && @annotation(simpleRest)", returning = "result")
     public Object afterReturning(JoinPoint joinPoint, SimpleRest simpleRest, Object result) {
 
