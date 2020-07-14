@@ -38,7 +38,7 @@ jdk8
 
 
 
-- **list entity**
+- **1. list entity**
 
 ``` bash
 curl -i -X GET http://172.18.49.66:8080/rest/employee
@@ -78,7 +78,7 @@ Date: Mon, 01 Jun 2020 09:06:33 GMT
 
 
 
-- **list entity 分页 排序**
+- **2. list entity 分页 排序**
 
 ``` bash
 curl -i -X GET  http://172.18.49.66:8080/rest/employee?page=1\&size=2\&sort=id,desc\&sort=gender
@@ -112,15 +112,17 @@ Date: Mon, 01 Jun 2020 09:10:50 GMT
     "timeStamp": 1591002804183
 }
 ```   
-使用mysql的情况下可以指定使用汉语言评语排序：使用gbkconvert$前缀
+
+<font color=red >
+使用mysql的情况下可以指定使用汉语言评语排序：使用gbkconvert$前缀  
  http://172.18.49.66:8080/rest/employee?page=1\&size=20\&sort=gbkconvert$firstName
- 
+</font>
  
  
 
 
 
-- **view entity**
+- **3. view entity**
 
 ``` bash
 curl -i -X GET http://172.18.49.66:8080/rest/employee/10001
@@ -133,8 +135,9 @@ Date: Thu, 28 May 2020 02:12:28 GMT
 ```   
 
 
-- **filter entity**
+- **4. filter entity**
 
+4.1  普通字段过滤  
 ``` bash
 curl -i -X GET http://172.18.49.66:8080/rest/employee?firstName=Georgi
 HTTP/1.1 200
@@ -160,10 +163,9 @@ Date: Thu, 28 May 2020 02:13:39 GMT
 	"timeStamp": 1591003067979
 }
 ``` 
+4.2  扩展字段过滤：  使用 isNull、isNotNull 过滤记录  
 
-**使用 isNull、isNotNull 过滤记录**  
-
-isNotNull:  
+4.2.1  isNotNull:  &前的"\\"  是为了在linux下转义  
 ```
 curl -i -X  GET http://172.18.49.66:8080/rest/test?page=1\&size=20\&addr=isNotNull
 
@@ -190,7 +192,7 @@ Date: Mon, 13 Jul 2020 03:48:11 GMT
 }
 ```
 
-isNull:  
+4.2.1  isNull:  &前的"\\"  是为了在linux下转义  
 ```
 http://172.18.49.66:8080/rest/test?page=1\&size=20\&addr=isNull
 
@@ -222,7 +224,7 @@ Date: Mon, 13 Jul 2020 03:50:29 GMT
 
 
 
-- **create entity**
+- **5. create entity**
 
 ``` bash
 $ curl -X POST   -i  -d  '{ "birthDate":"1953-09-02","firstName":"zhonglei","lastName":"yang","gender":"M","hireDate":"1986-06-26"}'  -H 'Content-Type: application/json'   http://172.18.49.66:8080/rest/employee
@@ -243,7 +245,7 @@ id 设置为自动生成的话  可以不用指定 id的值
 
 
 
-- **update entity**
+- **6. update entity**
 
 ``` bash
 $ curl -X PUT   -i  -d  '{"firstName":"aaaaaaa"}'  -H 'Content-Type: application/json'   http://172.18.49.66:8080/rest/employee/10001
@@ -263,7 +265,7 @@ Date: Thu, 28 May 2020 02:35:39 GMT
 
 
 
-- **delete entity**
+- **7. delete entity**
 ``` bash
 $ curl -X DELETE   -i  http://172.18.49.66:8080/rest/employee/10001
 HTTP/1.1 200 
