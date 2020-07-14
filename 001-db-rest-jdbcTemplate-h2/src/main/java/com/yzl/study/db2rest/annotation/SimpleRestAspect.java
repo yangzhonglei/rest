@@ -111,19 +111,23 @@ public class SimpleRestAspect {
 			}
 
 		}
-    	 if(result!=null && "listEntity".equals(targetMethod)) {
-    		 
-    		 ResponseMessage rspm = (ResponseMessage) result;
-    		 PageResponse  prsp = (PageResponse ) rspm.getData();
-    		 List<Map<String, Object>>resultMapList =  prsp.getList();
+   	 if(result!=null && "listEntity".equals(targetMethod)) {
+		 
+		 ResponseMessage rspm = (ResponseMessage) result;
+		 PageResponse  prsp = (PageResponse ) rspm.getData();
+		 if(prsp!=null) {
+			 List<Map<String, Object>>resultMapList =  prsp.getList();
     		 if(resultMapList!=null && resultMapList.size()>0) {
     			 for(Map<String, Object> m : resultMapList) {
         			 
         			 deleteExcludeFields(tableObjectName, m);
         		 }
     		 }
-    		
-    	 }
+			 
+		 }
+	
+		
+	 }
     	 
     	 
         return result;
