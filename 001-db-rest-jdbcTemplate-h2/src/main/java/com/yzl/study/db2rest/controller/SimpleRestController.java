@@ -60,9 +60,18 @@ public class SimpleRestController {
 		Integer count = jdbcTemplateTableCRUD.count(tableName,request);
 		if(request.getPage()!=null  ) {
 			
-			 if( (request.getPage().getPage()-1) * request.getPage().getSize()>count) {
-				 return ResponseMessage.successMsg();
-			 }
+			  int offset = (request.getPage().getPage()-1) * request.getPage().getSize();
+			  
+			if (count == 0 || offset >= count) {
+				
+				List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+				PageResponse prsb = new PageResponse();
+				prsb.setList(list);
+				prsb.setPage(request.getPage().getPage());
+				prsb.setTotal((long) count);
+				prsb.setSize(request.getPage().getSize());
+				return ResponseMessage.successMsg(prsb);
+			}
 		}
 		
 		List<Map<String, Object>> list = jdbcTemplateTableCRUD.retrieve(tableName,request);

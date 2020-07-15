@@ -15,6 +15,7 @@ import com.yzl.study.db2rest.model.ComplexQuery;
 import com.yzl.study.db2rest.model.Order;
 import com.yzl.study.db2rest.model.Page;
 import com.yzl.study.db2rest.model.Sort;
+import com.yzl.study.db2rest.utils.ConfigedSqlParser;
 import com.yzl.study.db2rest.utils.FieldNameConvertor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,18 +50,10 @@ public class ComplexQueryExecuter {
 			int pageNo = page.getPage();
 			int pageSize = page.getSize();
 			String sql = c.getSql();
-			StringBuilder sqlSb = new StringBuilder();
-			//sql 
-//			int index = sql.indexOf("<if");
-//			int start = 0;
-//			while(index >-1) {
-//				sqlSb=sqlSb.append(sql.substring(start, index));
-//				int index2 = sql.indexOf(">", index+3);
-//				
-//				sql.indexOf(str, fromIndex)
-//			}
+			String parsedSql = ConfigedSqlParser.parse(sql, paraMap);
+			
 			StringBuilder sb = new StringBuilder();
-			sb.append(sql);
+			sb.append(parsedSql);
 			Sort st = page.getSort();
 			if (st != null && st.getOrders() != null && st.getOrders().size() > 0) {
 

@@ -104,7 +104,7 @@ public class ComplexQueryController {
 	    			String[] ss = sortStr.split(",");
 	    			Order orderTmp = null;
 	    			for(String s : ss) {
-	    				if(s.toLowerCase().contains("asc") ) {
+	    				if(s.toLowerCase().contains(" asc") ) {
 	    					orderTmp = new Order();
 	    					int ascInd = s.toLowerCase().indexOf(" asc");
 	    					String fieldName = s.substring(0,ascInd);
@@ -117,7 +117,7 @@ public class ComplexQueryController {
 	    					orderTmp.setColName(colName);
 	    					orderTmp.setSortType("asc");
 	    					
-	    				}else if( s.toLowerCase().contains("desc")) {
+	    				}else if( s.toLowerCase().contains(" desc")) {
 	    					orderTmp = new Order();
 	    					int ascInd = s.toLowerCase().indexOf(" desc");
 	    					String fieldName = s.substring(0,ascInd);
